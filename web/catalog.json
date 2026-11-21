@@ -1,0 +1,207 @@
+{
+  "domains": [
+    "Governança",
+    "Acesso e autenticação",
+    "Backups",
+    "Proteção de dados",
+    "Incidentes"
+  ],
+  "catalog": [
+    {
+      "id": 0,
+      "domain": 0,
+      "title": "Escopo do SGSI",
+      "ref": "ISO/IEC 27001 §4.3",
+      "weight": 2,
+      "prompt": "O escopo do SGSI identifica unidades, processos, sistemas e dependências?",
+      "risk": "Ativos críticos fora da avaliação",
+      "fix": "Documentar limites, dependências e interfaces e aprovar o escopo.",
+      "check": "Escopo revisado e aprovado"
+    },
+    {
+      "id": 1,
+      "domain": 0,
+      "title": "Tratamento de riscos",
+      "ref": "ISO/IEC 27001 §6.1.2–6.1.3",
+      "weight": 3,
+      "prompt": "A organização avalia riscos e mantém um plano de tratamento com responsáveis?",
+      "risk": "Riscos relevantes sem tratamento",
+      "fix": "Definir critérios, registrar riscos e aprovar o tratamento e o risco residual.",
+      "check": "Registro e plano aprovados"
+    },
+    {
+      "id": 2,
+      "domain": 0,
+      "title": "Auditoria interna",
+      "ref": "ISO/IEC 27001 §9.2",
+      "weight": 1,
+      "prompt": "Existe um programa de auditoria interna com resultados registrados?",
+      "risk": "Falhas de controle sem verificação periódica",
+      "fix": "Definir frequência, escopo e critérios e executar uma auditoria piloto.",
+      "check": "Programa e relatório da auditoria"
+    },
+    {
+      "id": 3,
+      "domain": 1,
+      "title": "Revisão de acessos",
+      "ref": "ISO/IEC 27001 A.5.18",
+      "weight": 3,
+      "prompt": "Os acessos são concedidos, revisados e revogados conforme a função e o desligamento?",
+      "risk": "Contas com acesso indevido",
+      "fix": "Revisar acessos por função e integrar a revogação ao desligamento.",
+      "check": "Amostra de acessos e revogações revisada"
+    },
+    {
+      "id": 4,
+      "domain": 1,
+      "title": "Autenticação segura",
+      "ref": "ISO/IEC 27001 A.8.5",
+      "weight": 3,
+      "prompt": "O acesso privilegiado e remoto usa autenticação reforçada compatível com o risco?",
+      "risk": "Uso indevido de credenciais",
+      "fix": "Aplicar MFA ao acesso privilegiado e remoto e revisar exceções.",
+      "check": "Contas em escopo com MFA verificado"
+    },
+    {
+      "id": 5,
+      "domain": 2,
+      "title": "Cópias de segurança",
+      "ref": "ISO/IEC 27001 A.8.13",
+      "weight": 3,
+      "prompt": "Os dados críticos têm cópias com frequência, retenção e proteção definidas?",
+      "risk": "Perda de dados críticos",
+      "fix": "Definir política de cópias e monitorar a execução para ativos críticos.",
+      "check": "Histórico de execução revisado"
+    },
+    {
+      "id": 6,
+      "domain": 2,
+      "title": "Teste de restauração",
+      "ref": "ISO/IEC 27001 A.8.13",
+      "weight": 3,
+      "prompt": "A organização testa restaurações e registra tempo e integridade dos dados recuperados?",
+      "risk": "Recuperação inviável após falha",
+      "fix": "Simular restauração de dados críticos e comparar o resultado com os objetivos de recuperação.",
+      "check": "Relatório de teste de recuperação"
+    },
+    {
+      "id": 7,
+      "domain": 3,
+      "title": "Registros de tratamento",
+      "ref": "LGPD art. 37",
+      "weight": 2,
+      "prompt": "Existe registro atualizado das operações de tratamento aplicáveis ao escopo?",
+      "risk": "Tratamentos sem rastreabilidade",
+      "fix": "Inventariar operações e registrar finalidades, dados, responsáveis e fluxos.",
+      "check": "Inventário revisado"
+    },
+    {
+      "id": 8,
+      "domain": 3,
+      "title": "Direitos dos titulares",
+      "ref": "LGPD art. 18",
+      "weight": 2,
+      "prompt": "Há fluxo para receber, validar e responder a pedidos dos titulares?",
+      "risk": "Solicitações sem atendimento adequado",
+      "fix": "Definir canal, responsáveis e procedimento para verificar e atender pedidos.",
+      "check": "Pedido simulado tratado de ponta a ponta"
+    },
+    {
+      "id": 9,
+      "domain": 3,
+      "title": "Proteção de dados pessoais",
+      "ref": "LGPD art. 46 · ISO/IEC 27001 A.8.24",
+      "weight": 3,
+      "prompt": "Há medidas técnicas e administrativas proporcionais ao risco, incluindo proteção criptográfica quando cabível?",
+      "risk": "Exposição ou alteração de dados pessoais",
+      "fix": "Rever controles de acesso, criptografia e gestão de chaves para dados sensíveis.",
+      "check": "Amostra de dados e controles verificada"
+    },
+    {
+      "id": 10,
+      "domain": 4,
+      "title": "Resposta a incidentes",
+      "ref": "ISO/IEC 27001 A.5.24 e A.5.26",
+      "weight": 3,
+      "prompt": "Existe procedimento exercitado para triagem, resposta e registro de incidentes?",
+      "risk": "Resposta tardia e impacto ampliado",
+      "fix": "Definir papéis, fluxo de escalonamento e realizar um exercício de resposta.",
+      "check": "Ata e resultados do exercício"
+    },
+    {
+      "id": 11,
+      "domain": 4,
+      "title": "Comunicação de incidentes",
+      "ref": "LGPD art. 48",
+      "weight": 3,
+      "prompt": "O controlador tem processo para avaliar risco ou dano relevante e comunicar incidentes quando cabível?",
+      "risk": "Comunicação obrigatória atrasada ou omitida",
+      "fix": "Definir responsáveis e testar o fluxo de decisão e comunicação à ANPD e aos titulares quando aplicável.",
+      "check": "Simulação com decisão e registro da comunicação"
+    }
+  ],
+  "opts": {
+    "0": "0 · Inexistente",
+    "1": "1 · Informal",
+    "2": "2 · Parcial",
+    "3": "3 · Implementado",
+    "4": "4 · Monitorado",
+    "": "Selecione uma resposta",
+    "na": "Não aplicável"
+  },
+  "stages": [
+    "Planejar",
+    "Executar",
+    "Verificar",
+    "Agir"
+  ],
+  "demo": {
+    "demo": true,
+    "org": {
+      "name": "Aurora Serviços Digitais",
+      "sector": "Tecnologia",
+      "owner": "Equipe de segurança",
+      "scope": "Ambiente de atendimento digital, infraestrutura em nuvem e tratamento de dados de clientes."
+    },
+    "answers": {
+      "0": {
+        "value": "3"
+      },
+      "1": {
+        "value": "2"
+      },
+      "2": {
+        "value": "3"
+      },
+      "3": {
+        "value": "3"
+      },
+      "4": {
+        "value": "1"
+      },
+      "5": {
+        "value": "4",
+        "evidence": "SIM-BKP-01 · Registro fictício de execução diária das cópias."
+      },
+      "6": {
+        "value": "1"
+      },
+      "7": {
+        "value": "3"
+      },
+      "8": {
+        "value": "3"
+      },
+      "9": {
+        "value": "2"
+      },
+      "10": {
+        "value": "3"
+      },
+      "11": {
+        "value": "2"
+      }
+    },
+    "actions": {}
+  }
+}
