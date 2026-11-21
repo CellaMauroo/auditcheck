@@ -52,12 +52,17 @@ class AuditCheckIntegrationTest(unittest.TestCase):
             "2": {"value": "4"},
             "3": {"value": "na", "reason": " "},
         }
-        data["actions"] = {"1": {"owner": "Equipe", "stage0": True, "due": "2026-12-10"}}
+        data["actions"] = {
+            "1": {"owner": "Equipe", "stage0": True, "due": "2026-12-10",
+                  "measure": "Revisar o registro de riscos", "verification": "Validado no registro SIM-02"},
+            "2": {"owner": "Cadastro anterior", "stage0": True},
+        }
         update = {"revision": saved["revision"], "data": data}
         updated = self.request(path, "PUT", update)
         self.assertEqual(updated["summary"]["score"], 25)
         self.assertEqual(updated["summary"]["answered"], 3)
         self.assertEqual(updated["summary"]["findings"][0]["priority"], 9)
+        self.assertEqual(updated["data"]["actions"], data["actions"])
         self.request(path, "PUT", update, 409)
         pdf, headers = self.request(path + "/report.pdf")
         self.assertEqual(headers.get_content_type(), "application/pdf")
@@ -66,6 +71,32 @@ class AuditCheckIntegrationTest(unittest.TestCase):
         with create_server(0, self.database) as reopened:
             self.assertEqual(reopened.store.get(saved["id"]), updated)
             self.assertEqual(len(reopened.store.list()), 2)
+
+    def test_create_and_delete_from_assessment_list(self):
+        collection = "/api/assessments"
+        org = {"name": "  Nova organização  ", "sector": "", "owner": "", "scope": "Equipe de TI"}
+        self.request(collection, "POST", {"demo": False, "org": {**org, "scope": " "}}, 400)
+        self.assertEqual(self.request(collection), [])
+
+        created = self.request(collection, "POST", {"demo": False, "org": org}, 201)
+        self.assertEqual(created["data"]["org"], {**org, "name": "Nova organização"})
+        self.assertEqual(created["data"]["answers"], {})
+        self.assertEqual(created["data"]["actions"], {})
+
+        listed = self.request(collection)[0]
+        path = f"{collection}/{listed['id']}"
+        data = created["data"]
+        data["org"]["name"] = "Nome atualizado"
+        updated = self.request(path, "PUT", {"revision": listed["revision"], "data": data})
+        self.request(path, "DELETE", {"revision": listed["revision"]}, 409)
+        self.assertEqual(self.request(path), updated)
+
+        self.assertEqual(self.request(path, "DELETE", {"revision": updated["revision"]}), {"deleted": True})
+        self.request(path, expected=404)
+        self.request(path + "/report.pdf", expected=404)
+        self.request(path, "DELETE", {"revision": updated["revision"]}, 404)
+        with create_server(0, self.database) as reopened:
+            self.assertEqual(reopened.store.list(), [])
 
     def test_invalid_replies_are_rejected(self):
         record = self.request("/api/assessments", "POST", {"demo": False}, 201)

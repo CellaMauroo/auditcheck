@@ -4,5 +4,15 @@
 <title>AuditCheck | Autoavaliação de segurança</title>
 <meta name="description" content="Autoavaliação acadêmica de segurança da informação baseada na ISO/IEC 27001 e na LGPD.">
 <link rel="stylesheet" href="/styles.css"></head>
-<body><div class="shell"><aside><div class="brand"><span class="mark" aria-hidden="true">✓</span> AuditCheck</div><nav aria-label="Seções"></nav><small>Projeto 5 · Autoavaliação<br>ISO/IEC 27001 e LGPD</small></aside><main id="main"><div class="top"><span>Segurança da informação / <b id="section"></b></span><span class="pill" id="mode"></span></div><div id="status" role="status" class="status-text"></div><div id="view"></div></main></div>
+<body><div class="shell"><aside><div class="brand"><span class="mark" aria-hidden="true">✓</span> AuditCheck</div><nav aria-label="Seções"></nav><small>Projeto 5 · Autoavaliação<br>ISO/IEC 27001 e LGPD</small></aside><main id="main"><div class="top"><span>Segurança da informação / <b id="section"></b></span><span class="pill" id="mode" hidden></span></div><div id="status" role="status" class="status-text"></div><div id="view"></div></main></div>
+<dialog id="delete-dialog" aria-labelledby="delete-title" aria-describedby="delete-description">
+  <form method="dialog">
+    <h2 id="delete-title">Excluir avaliação?</h2>
+    <p id="delete-description">O cadastro, as respostas e o plano de ação de <strong id="delete-name"></strong> serão apagados permanentemente.</p>
+    <div class="inline-actions">
+      <button class="soft" value="cancel" autofocus>Cancelar</button>
+      <button class="danger" value="delete">Excluir avaliação</button>
+    </div>
+  </form>
+</dialog>
 <script type="module" src="/app.js"></script></body></html>
