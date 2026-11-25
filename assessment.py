@@ -19,9 +19,7 @@ def validate(data):
     object_fields(data, {"demo", "org", "answers", "actions"})
     if type(data.get("demo")) is not bool:
         raise ValueError("Tipo de avaliação inválido.")
-    organization = object_fields(data.get("org"), {"name", "sector", "owner", "scope"})
-    for name, limit in {"name": 150, "sector": 100, "owner": 120, "scope": 1800}.items():
-        validate_text(organization.get(name), limit)
+    validate_organization(data.get("org"))
     for answer in object_fields(data.get("answers"), IDS).values():
         object_fields(answer, {"value", "reason", "evidence"})
         value = answer.get("value", "")
@@ -31,8 +29,10 @@ def validate(data):
         validate_text(answer.get("evidence", ""), 500)
     stages = {f"stage{index}" for index in range(4)}
     for action in object_fields(data.get("actions"), IDS).values():
-        object_fields(action, stages | {"owner", "due"})
+        object_fields(action, stages | {"owner", "due", "measure", "verification"})
         validate_text(action.get("owner", ""), 120)
+        validate_text(action.get("measure", ""), 500)
+        validate_text(action.get("verification", ""), 500)
         due = action.get("due", "")
         validate_text(due, 10)
         if due:
@@ -41,6 +41,14 @@ def validate(data):
         if any(type(action[key]) is not bool for key in stages & action.keys()):
             raise ValueError("Etapa PDCA inválida.")
     return data
+
+
+def validate_organization(organization):
+    limits = {"name": 150, "sector": 100, "owner": 120, "scope": 1800}
+    object_fields(organization, limits.keys())
+    for name, limit in limits.items():
+        validate_text(organization.get(name), limit)
+    return organization
 
 
 def validate_text(value, limit):

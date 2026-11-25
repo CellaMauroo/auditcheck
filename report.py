@@ -96,15 +96,22 @@ def make_report(record):
     for item in summary["findings"]:
         action = data["actions"].get(str(item["id"]), {})
         completed = ", ".join(label for i, label in enumerate(CATALOG["stages"]) if action.get(f"stage{i}"))
-        story.append(KeepTogether([
+        details = [
             p(item["title"], "Heading3"),
             p(f"Prioridade {item['severity'].lower()} ({item['priority']}) · Risco: {item['risk']}"),
-            p("Planejar e executar: " + item["fix"]),
-            p("Verificar: " + item["check"]),
-            p("Agir: padronizar a medida se eficaz ou revisar o plano."),
+            p("Ação sugerida · " + item["fix"]),
+        ]
+        if action.get("measure", "").strip():
+            details.append(p("Ação definida · " + action["measure"]))
+        details.append(p("Critério de verificação · " + item["check"]))
+        if action.get("verification", "").strip():
+            details.append(p("Registro da verificação · " + action["verification"]))
+        details.extend([
+            p("Agir · Padronizar a medida se eficaz ou revisar o plano."),
             p(f"Responsável: {action.get('owner') or 'A definir'} · Prazo: {action.get('due') or 'A definir'}"),
             p("Etapas concluídas: " + (completed or "Nenhuma")), Spacer(1, 5),
-        ]))
+        ])
+        story.append(KeepTogether(details))
     doc.build(story, onFirstPage=frame, onLaterPages=frame)
     return stream.getvalue()
 

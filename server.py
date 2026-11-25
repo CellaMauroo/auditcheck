@@ -6,7 +6,7 @@ from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 from urllib.parse import urlsplit
 
-from assessment import validate
+from assessment import validate, validate_organization
 from report import make_report
 from storage import Assessments
 
@@ -31,6 +31,9 @@ class Handler(BaseHTTPRequestHandler):
     def do_PUT(self):
         self.dispatch("PUT")
 
+    def do_DELETE(self):
+        self.dispatch("DELETE")
+
     def dispatch(self, method):
         if self.headers.get("Host") not in self.server.hosts:
             return self.error(403, "Origem indisponível.")
@@ -46,12 +49,32 @@ class Handler(BaseHTTPRequestHandler):
                 return self.send_json(200, self.server.store.list())
             if path == COLLECTION and method == "POST":
                 body = self.read_json()
-                if type(body.get("demo")) is not bool or body.keys() != {"demo"}:
+                demo = body.get("demo")
+                if type(demo) is not bool or body.keys() - {"demo", "org"}:
                     return self.error(400, "Informe se é uma demonstração.")
-                return self.send_json(201, self.server.store.create(body["demo"]))
+                organization = None
+                if "org" in body:
+                    if demo:
+                        return self.error(400, "Cadastros de demonstração usam os dados de exemplo.")
+                    organization = validate_organization(body["org"])
+                    organization = {name: value.strip() for name, value in organization.items()}
+                    if not organization["name"] or not organization["scope"]:
+                        return self.error(400, "Preencha o nome da organização e o escopo.")
+                return self.send_json(201, self.server.store.create(demo, organization))
             match = ITEM.fullmatch(path)
             if match:
                 key, report = match.groups()
+                if method == "DELETE" and not report:
+                    body = self.read_json()
+                    revision = body.get("revision")
+                    if body.keys() != {"revision"} or type(revision) is not int or revision < 1:
+                        return self.error(400, "Revisão inválida.")
+                    deleted = self.server.store.delete(key, revision)
+                    if deleted is None:
+                        return self.error(404, "Avaliação não encontrada.")
+                    if not deleted:
+                        return self.error(409, "A avaliação foi alterada. Atualize a lista e confira antes de excluir.")
+                    return self.send_json(200, {"deleted": True})
                 record = self.server.store.get(key)
                 if record is None:
                     return self.error(404, "Avaliação não encontrada.")

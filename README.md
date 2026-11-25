@@ -26,13 +26,13 @@ No macOS ou Linux:
 
 Abra [AuditCheck local](http://127.0.0.1:8000). O servidor cria o SQLite em `data/auditcheck.sqlite3`. Para escolher outro local ou porta, use `--database` e `--port`. O servidor escuta apenas no computador local e foi pensado para uso individual.
 
-## Fluxo de demonstração
+## Avaliações
 
-1. Abra a avaliação fictícia e veja os gráficos por domínio e por nível de resposta.
-2. Altere um controle em **Questionário** e registre uma evidência simulada. Para marcar um controle como não aplicável, inclua uma justificativa.
+1. Selecione **Nova avaliação**, preencha o nome da organização e o escopo e abra o questionário. Use **Criar demonstração** para explorar uma avaliação fictícia já preenchida.
+2. Responda aos controles em **Questionário** e registre evidências simuladas. Para marcar um controle como não aplicável, inclua uma justificativa.
 3. Em **Plano PDCA**, atribua responsáveis e prazos e marque as etapas concluídas.
 4. Em **Relatório**, baixe o PDF. O servidor inclui gráficos, escopo, metodologia, respostas, evidências e ações corretivas.
-5. Crie outra avaliação em **Histórico**. As anteriores permanecem disponíveis após reiniciar o servidor.
+5. Volte a **Avaliações** para abrir uma avaliação existente, editar o cadastro ou confirmar a exclusão.
 
 ## Estrutura
 
@@ -44,7 +44,7 @@ Abra [AuditCheck local](http://127.0.0.1:8000). O servidor cria o SQLite em `dat
 | `report.py` | PDF paginado com gráficos vetoriais |
 | `web/` | Interface, estilos e catálogo de controles |
 
-O protótipo anterior salvava os dados no navegador. Esta versão usa um banco independente e começa com uma avaliação fictícia.
+O protótipo anterior salvava os dados no navegador. Esta versão armazena as avaliações no SQLite e abre a lista de avaliações salvas.
 
 ## Testes
 

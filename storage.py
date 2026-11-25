@@ -23,10 +23,12 @@ class Assessments:
         db.row_factory = sqlite3.Row
         return db
 
-    def create(self, demo):
+    def create(self, demo, organization=None):
         data = CATALOG["demo"] if demo else {
-            "demo": False, "org": dict.fromkeys(("name", "sector", "owner", "scope"), ""),
-            "answers": {}, "actions": {},
+            "demo": False,
+            "org": organization if organization is not None else dict.fromkeys(("name", "sector", "owner", "scope"), ""),
+            "answers": {},
+            "actions": {},
         }
         key, now = uuid4().hex, datetime.now(timezone.utc).isoformat()
         with closing(self.connect()) as db, db:
@@ -49,13 +51,22 @@ class Assessments:
         for row in rows:
             record = self.unpack(row)
             result.append({"id": record["id"], "updated_at": record["updated_at"],
-                           "name": record["data"]["org"]["name"], "demo": record["data"]["demo"],
+                           "revision": record["revision"], "name": record["data"]["org"]["name"], "demo": record["data"]["demo"],
                            "score": record["summary"]["score"], "answered": record["summary"]["answered"]})
         return result
 
     def get(self, key):
         with closing(self.connect()) as db:
             return self.unpack(db.execute("SELECT * FROM assessments WHERE id = ?", (key,)).fetchone())
+
+    def delete(self, key, revision):
+        with closing(self.connect()) as db, db:
+            deleted = db.execute("DELETE FROM assessments WHERE id = ? AND revision = ?", (key, revision))
+            if deleted.rowcount:
+                return True
+            if db.execute("SELECT 1 FROM assessments WHERE id = ?", (key,)).fetchone():
+                return False
+            return None
 
     def update(self, key, revision, data):
         now = datetime.now(timezone.utc).isoformat()
