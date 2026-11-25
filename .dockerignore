@@ -1,0 +1,7 @@
+.git
+.railway
+__pycache__
+.venv
+data
+*.sqlite3*
+.env*

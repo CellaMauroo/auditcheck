@@ -28,6 +28,10 @@ Abra [AuditCheck local](http://127.0.0.1:8000). O servidor cria o SQLite em `dat
 
 ## Avaliações
 
+### Implantação no Railway
+
+Use o serviço com o Dockerfile e o `railway.toml` da raiz. Anexe um volume em `/data`, defina `AUDITCHECK_PASSWORD` nas variáveis do serviço e gere um domínio HTTPS. O login usa o usuário `auditcheck` e a senha configurada no Railway. O SQLite é gravado no volume e a rota `/health` atende à verificação de inicialização do Railway.
+
 1. Selecione **Nova avaliação**, preencha o nome da organização e o escopo e abra o questionário. Use **Criar demonstração** para explorar uma avaliação fictícia já preenchida.
 2. Responda aos controles em **Questionário** e registre evidências simuladas. Para marcar um controle como não aplicável, inclua uma justificativa.
 3. Em **Plano PDCA**, atribua responsáveis e prazos e marque as etapas concluídas.

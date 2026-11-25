@@ -1,6 +1,9 @@
 import argparse
+import base64
 import json
+import os
 import re
+from hmac import compare_digest
 from http import HTTPStatus
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
@@ -35,12 +38,25 @@ class Handler(BaseHTTPRequestHandler):
         self.dispatch("DELETE")
 
     def dispatch(self, method):
-        if self.headers.get("Host") not in self.server.hosts:
+        path = urlsplit(self.path).path
+        host = self.headers.get("Host")
+        if method == "GET" and path == "/health" and (host in self.server.hosts or (
+            self.server.railway and host == "healthcheck.railway.app"
+        )):
+            return self.send_json(200, {"status": "ok"})
+        if host not in self.server.hosts:
             return self.error(403, "Origem indisponível.")
         origin = self.headers.get("Origin")
         if origin and origin not in self.server.origins:
             return self.error(403, "Origem indisponível.")
-        path = urlsplit(self.path).path
+        auth = self.server.authorization
+        if auth and not compare_digest(self.headers.get("Authorization", "").encode("latin-1"), auth):
+            self.send_response(401)
+            self.send_header("WWW-Authenticate", 'Basic realm="AuditCheck", charset="UTF-8"')
+            self.send_header("Cache-Control", "no-store")
+            self.send_header("Content-Length", "0")
+            self.end_headers()
+            return
         try:
             if method == "GET" and path in STATIC:
                 name, mime = STATIC[path]
@@ -131,22 +147,38 @@ class Handler(BaseHTTPRequestHandler):
         return self.send_json(status, {"error": message or HTTPStatus(status).phrase})
 
 
-def create_server(port, database):
-    server = ThreadingHTTPServer(("127.0.0.1", port), Handler)
+def create_server(port, database, *, railway=False, domain="", password=""):
+    if railway and not password:
+        raise ValueError("Defina AUDITCHECK_PASSWORD antes de iniciar no Railway.")
+    if domain and not re.fullmatch(r"[a-zA-Z0-9][a-zA-Z0-9.-]*", domain):
+        raise ValueError("Domínio do Railway inválido.")
+    server = ThreadingHTTPServer(("0.0.0.0" if railway else "127.0.0.1", port), Handler)
     port = server.server_port
     server.hosts = {f"127.0.0.1:{port}", f"localhost:{port}"}
     server.origins = {f"http://{host}" for host in server.hosts}
+    server.railway = railway
+    server.authorization = b"Basic " + base64.b64encode(f"auditcheck:{password}".encode()) if railway else b""
+    if railway and domain:
+        server.hosts.add(domain)
+        server.origins.add(f"https://{domain}")
     server.store = Assessments(database)
     return server
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="Servidor local do AuditCheck")
-    parser.add_argument("--port", type=int, default=8000)
-    parser.add_argument("--database", type=Path, default=ROOT / "data" / "auditcheck.sqlite3")
+    railway = bool(os.environ.get("RAILWAY_ENVIRONMENT_ID"))
+    mount = os.environ.get("RAILWAY_VOLUME_MOUNT_PATH")
+    parser = argparse.ArgumentParser(description="Servidor do AuditCheck")
+    parser.add_argument("--port", type=int, default=os.environ.get("PORT", "8000"))
+    parser.add_argument("--database", type=Path, default=Path(mount) / "auditcheck.sqlite3" if mount else None)
     args = parser.parse_args()
-    with create_server(args.port, args.database) as server:
-        print(f"AuditCheck disponível em http://127.0.0.1:{server.server_port}", flush=True)
+    if railway and not mount:
+        parser.error("Anexe um volume persistente ao serviço para armazenar as avaliações.")
+    database = args.database or ROOT / "data" / "auditcheck.sqlite3"
+    with create_server(args.port, database, railway=railway,
+                       domain=os.environ.get("RAILWAY_PUBLIC_DOMAIN", ""),
+                       password=os.environ.get("AUDITCHECK_PASSWORD", "")) as server:
+        print(f"AuditCheck escutando na porta {server.server_port}", flush=True)
         try:
             server.serve_forever()
         except KeyboardInterrupt:
